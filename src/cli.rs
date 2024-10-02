@@ -1,3 +1,21 @@
+//! This module implements a command-line interface (CLI) for interacting with a
+//! reversible stack-based interpreter. The CLI supports two modes of operation:
+//!
+//! - **Script Mode**: Executes a sequence of instructions provided from a file or
+//!   standard input.
+//! - **Shell Mode**: Launches an interactive shell where users can input commands
+//!   to manipulate the stack and interpreter in real-time.
+//!
+//! The CLI allows users to add, execute, and reverse stack-based instructions such as
+//! `PUSH`, `POP`, `ADD`, `SUB`, `MUL`, and `DIV`. It also provides helpful commands
+//! like displaying the current stack, viewing the instruction queue, and undoing previous
+//! operations.
+//!
+//! This module uses `clap` for argument parsing and `rustyline` for interactive shell
+//! support. It communicates with an underlying interpreter to manage the execution and
+//! history of instructions, and handles errors like division by zero or stack underflow
+//! gracefully.
+
 use clap::{Parser, Subcommand};
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
