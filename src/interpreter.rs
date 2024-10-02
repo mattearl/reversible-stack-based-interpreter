@@ -1,6 +1,22 @@
+//! This module implements a basic interpreter for stack-based instructions.
+//! It provides the capability to execute arithmetic and stack manipulation instructions
+//! with forward execution and backward undo functionality. The interpreter maintains
+//! a history of executed instructions, allowing for state reversal. This module is
+//! designed to support basic instructions like push, pop, and arithmetic operations
+//! (addition, subtraction, multiplication, and division).
+
 use crate::errors::RuntimeError;
 use std::collections::VecDeque;
 
+/// Represents the possible instructions that can be executed by the interpreter.
+///
+/// - `Push(i32)`: Pushes an integer value onto the stack.
+/// - `Pop`: Pops the top value off the stack.
+/// - `Add`: Pops the top two values, adds them, and pushes the result.
+/// - `Sub`: Pops the top two values, subtracts the second from the first, and pushes the result.
+/// - `Mul`: Pops the top two values, multiplies them, and pushes the result.
+/// - `Div`: Pops the top two values, divides the first by the second, and pushes the result.
+///          If division by zero is attempted, it results in an error.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Instruction {
     Push(i32),
@@ -11,6 +27,13 @@ pub enum Instruction {
     Div,
 }
 
+/// Represents an entry in the execution history of the interpreter. Each entry records:
+/// - The `instruction` that was executed.
+/// - The values that were `popped_values` off the stack during the execution of the instruction.
+/// - The values that were `pushed_values` onto the stack as a result of executing the instruction.
+///
+/// This structure is used to enable undo functionality in the interpreter by reversing
+/// the stack changes for each executed instruction.
 #[derive(Debug)]
 struct HistoryEntry {
     instruction: Instruction,
@@ -18,6 +41,14 @@ struct HistoryEntry {
     pushed_values: Vec<i32>,
 }
 
+/// The `Interpreter` struct manages the state of the stack-based instruction execution.
+/// It holds:
+/// - `instructions`: A queue of instructions to be executed.
+/// - `stack`: A vector representing the current state of the stack.
+/// - `history`: A list of past executions to allow for reversing instructions.
+///
+/// The interpreter supports forward execution of instructions and the ability to undo
+/// previous operations via a backtracking mechanism.
 #[derive(Debug, Default)]
 pub struct Interpreter {
     instructions: VecDeque<Instruction>,
@@ -50,10 +81,12 @@ impl Interpreter {
         self.instructions.get_mut(0)
     }
 
+    /// Returns a reference to the instruction queue.
     pub fn instructions(&self) -> &VecDeque<Instruction> {
         &self.instructions
     }
 
+    /// Returns a reference to the stack.
     pub fn stack(&self) -> &Vec<i32> {
         &self.stack
     }

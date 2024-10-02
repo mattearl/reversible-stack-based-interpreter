@@ -1,21 +1,11 @@
-use clap::{
-    Parser,
-    Subcommand,
-};
+use clap::{Parser, Subcommand};
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 use std::fs::File;
-use std::io::{
-    self,
-    BufRead,
-    BufReader,
-};
+use std::io::{self, BufRead, BufReader};
 
 use crate::errors::RuntimeError;
-use crate::interpreter::{
-    Instruction,
-    Interpreter,
-};
+use crate::interpreter::{Instruction, Interpreter};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -311,10 +301,7 @@ fn parse_instruction(s: &str) -> Result<Instruction, RuntimeError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::interpreter::{
-        Instruction,
-        Interpreter,
-    };
+    use crate::interpreter::{Instruction, Interpreter};
 
     #[test]
     fn test_add_and_forward_command() {
