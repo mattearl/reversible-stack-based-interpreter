@@ -1,0 +1,29 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v3
+
+    - name: Build the project
+      run: cargo build --release
+
+    - name: Check rustfmt
+      run: cargo fmt -- --check
+
+    - name: Check clippy for linting
+      run: cargo clippy -- -D warnings
+
+    - name: Run tests
+      run: cargo test -- --nocapture
