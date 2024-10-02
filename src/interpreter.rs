@@ -4,6 +4,58 @@
 //! a history of executed instructions, allowing for state reversal. This module is
 //! designed to support basic instructions like push, pop, and arithmetic operations
 //! (addition, subtraction, multiplication, and division).
+//!
+//! # Examples
+//!
+//! ## Basic Arithmetic Operations
+//!
+//! ```rust
+//! use reversible_interpreter::interpreter::Instruction;
+//! use reversible_interpreter::interpreter::Interpreter;
+//! let mut interpreter = Interpreter::new();
+//! interpreter.add_instructions(&[
+//!     Instruction::Push(5),
+//!     Instruction::Push(3),
+//!     Instruction::Add,
+//! ]);
+//! interpreter.run().unwrap();
+//! assert_eq!(interpreter.stack(), &vec![8]);
+//! ```
+//! This example pushes 5 and 3 onto the stack, then adds them. The stack contains the result `8`.
+//!
+//! ## Undo (Backtrack) Operations
+//!
+//! ```rust
+//! use reversible_interpreter::interpreter::Instruction;
+//! use reversible_interpreter::interpreter::Interpreter;
+//! let mut interpreter = Interpreter::new();
+//! interpreter.add_instructions(&[
+//!     Instruction::Push(4),
+//!     Instruction::Push(2),
+//!     Instruction::Mul,
+//! ]);
+//! interpreter.run().unwrap();
+//! assert_eq!(interpreter.stack(), &vec![8]);
+//! interpreter.back().unwrap();
+//! assert_eq!(interpreter.stack(), &vec![4, 2]);
+//! ```
+//! Here, the multiplication of 4 and 2 is undone, restoring the stack to its previous state `[4, 2]`.
+//!
+//! ## Division and Error Handling
+//!
+//! ```rust
+//! use reversible_interpreter::interpreter::Instruction;
+//! use reversible_interpreter::interpreter::Interpreter;
+//! let mut interpreter = Interpreter::new();
+//! interpreter.add_instructions(&[
+//!     Instruction::Push(10),
+//!     Instruction::Push(0),
+//!     Instruction::Div,
+//! ]);
+//! assert!(interpreter.run().is_err()); // Division by zero error.
+//! assert_eq!(interpreter.stack(), &vec![10, 0]); // Stack is restored to previous state.
+//! ```
+//! In this example, the division of 10 by 0 results in a `DivideByZero` error, and the stack is not changed.
 
 use std::collections::VecDeque;
 
