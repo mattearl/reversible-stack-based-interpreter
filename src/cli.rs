@@ -22,8 +22,7 @@ use rustyline::Editor;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 
-use crate::errors::RuntimeError;
-use crate::interpreter::{Instruction, Interpreter};
+use crate::interpreter::{Instruction, Interpreter, RuntimeError};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
