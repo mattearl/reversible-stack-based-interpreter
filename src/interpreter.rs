@@ -251,6 +251,8 @@ impl Interpreter {
 
         // Reverse the stack changes
         // First, remove the values that were pushed
+        // We could also check that the values being popped match the values
+        // that were originally pushed, ensuring the state is consistent.
         for _ in &history_entry.pushed_values {
             self.stack.pop().ok_or(RuntimeError::StackUnderflow)?;
         }
