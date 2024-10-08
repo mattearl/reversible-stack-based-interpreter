@@ -296,42 +296,42 @@ mod tests {
     #[test]
     fn test_property_reverse_execution() {
         proptest!(|(instructions in instruction_sequence())| {
-            let initial_stack = Vec::new();
-
             let mut interpreter = Interpreter::new();
             interpreter.add_instructions(&instructions);
 
             let run_result = interpreter.run();
 
-            // Collect executed instructions before reversing
+            // Collect executed instructions
             let executed_instructions: Vec<_> = interpreter.history.iter().map(|h| h.instruction.clone()).collect();
-
-            while interpreter.back().is_ok() {}
-
-            prop_assert_eq!(interpreter.stack, initial_stack);
-
             let executed_count = executed_instructions.len();
 
-            let failed_instruction_index = executed_count;
+            if run_result.is_ok() {
+                prop_assert_eq!(&executed_instructions, &instructions, "When run is successful executed instructions should be the same as input instructions");
+            }
 
+            // Attempt to reverse all executed instructions
+            while interpreter.back().is_ok() {}
+
+            prop_assert_eq!(interpreter.stack, vec![], "After reversing the stack should be empty");
+
+            // Compute unexecuted instructions, if any
             let unexecuted_instructions = if run_result.is_err() {
-                // Skip the failed instruction
-                if failed_instruction_index < instructions.len() {
-                    &instructions[failed_instruction_index + 1..]
+                // If an error occurred, skip the failed instruction
+                if executed_count < instructions.len() {
+                    &instructions[executed_count + 1..]
                 } else {
                     &[]
                 }
             } else {
-                &instructions[executed_count..]
+                &[]
             };
 
             // Build expected instructions after reversal
-            let mut expected_instructions_after_reversal = executed_instructions.clone();
-            expected_instructions_after_reversal.extend_from_slice(unexecuted_instructions);
+            let mut expected_instructions = executed_instructions.clone();
+            expected_instructions.extend_from_slice(unexecuted_instructions);
 
             let restored_instructions: Vec<Instruction> = interpreter.instructions.iter().cloned().collect();
-
-            prop_assert_eq!(restored_instructions, expected_instructions_after_reversal);
+            prop_assert_eq!(restored_instructions, expected_instructions);
         });
     }
 
@@ -606,51 +606,5 @@ mod tests {
         assert_eq!(interpreter.history[1].instruction, Instruction::Pop);
         // Instructions queue should be empty
         assert!(interpreter.instructions.is_empty());
-    }
-
-    #[test]
-    fn test_interpreter_consistency() {
-        proptest!(|(instructions in instruction_sequence())| {
-            let mut interpreter = Interpreter::new();
-            interpreter.add_instructions(&instructions);
-
-            // Keep a clone of the initial instructions for later comparison
-            let initial_instructions = instructions.clone();
-
-            let run_result = interpreter.run();
-
-            // Collect executed instructions
-            let executed_instructions: Vec<_> = interpreter.history.iter().map(|h| h.instruction.clone()).collect();
-
-            // Attempt to reverse all executed instructions
-            while interpreter.back().is_ok() {}
-
-            // After reversing, the stack should be empty
-            prop_assert_eq!(interpreter.stack, vec![]);
-
-            let executed_count = executed_instructions.len();
-
-            // Determine the index of the failed instruction, if any
-            let failed_index = executed_count;
-
-            // Compute unexecuted instructions
-            let unexecuted_instructions = if run_result.is_err() {
-                // If an error occurred, skip the failed instruction
-                if failed_index < initial_instructions.len() {
-                    &initial_instructions[failed_index + 1..]
-                } else {
-                    &[]
-                }
-            } else {
-                &initial_instructions[executed_count..]
-            };
-
-            // Build expected instructions after reversal
-            let mut expected_instructions = executed_instructions.clone();
-            expected_instructions.extend_from_slice(unexecuted_instructions);
-
-            let restored_instructions: Vec<Instruction> = interpreter.instructions.iter().cloned().collect();
-            prop_assert_eq!(restored_instructions, expected_instructions);
-        });
     }
 }
