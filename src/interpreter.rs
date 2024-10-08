@@ -191,8 +191,10 @@ impl Interpreter {
                 if self.stack.len() < 2 {
                     return Err(RuntimeError::StackUnderflow);
                 }
+                // The following pops should never fail since we already checked for underflow above.
                 let b = self.stack.pop().ok_or(RuntimeError::StackUnderflow)?;
                 let a = self.stack.pop().ok_or(RuntimeError::StackUnderflow)?;
+
                 let result = match instruction {
                     Instruction::Add => a.checked_add(b),
                     Instruction::Sub => a.checked_sub(b),
